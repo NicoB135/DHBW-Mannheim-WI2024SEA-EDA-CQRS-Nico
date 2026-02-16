@@ -1,7 +1,9 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
+from flask_cors import CORS
 import pika, json
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='/feeding-command-service')
+CORS(app)
 
 def send_event(event_type, data):
     # Verbindung zu RabbitMQ aufbauen (Host aus docker-compose)
@@ -13,12 +15,27 @@ def send_event(event_type, data):
     channel.basic_publish(exchange='cat_events', routing_key='', body=message)
     connection.close()
 
-@app.route('/feed', methods=['POST'])
+@app.route('/')
+def index():
+    return send_from_directory('/feeding-command-service', 'index.html')
+
+@app.route('/feed', methods=['GET', 'POST', 'OPTIONS'])
 def feed_cat():
+    if request.method == 'OPTIONS':
+        return '', 204
+    
     # Hier würde normalerweise die Validierung/Logik stehen [cite: 62]
-    cat_name = request.json.get('name', 'Unbekannte Katze')
+    try:
+        data = request.get_json(force=True) if request.data else {}
+    except:
+        data = {}
+    
+    cat_name = data.get('name', 'Unbekannte Katze')
     
     # Event auslösen: "Fütterung durchgeführt" [cite: 70, 83]
     send_event('cat.fed', {'name': cat_name, 'amount': '50g'})
     
     return jsonify({"status": "Command gesendet: Katze wird gefüttert!"}), 202
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=False)

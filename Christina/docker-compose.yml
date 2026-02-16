@@ -8,7 +8,9 @@ services:
 
   # Die Schreibseite (Commands)
   feeding-service:
-    build: ./feeding-command-service
+    build: ./write_service
+    ports:
+      - "5001:5000"
     depends_on:
       - rabbitmq
     environment:
@@ -16,7 +18,9 @@ services:
 
   # Die Leseseite (Queries)
   stats-service:
-    build: ./cat-stats-query-service
+    build: ./read_service
+    ports:
+      - "5002:5000"
     depends_on:
       - rabbitmq
     environment:

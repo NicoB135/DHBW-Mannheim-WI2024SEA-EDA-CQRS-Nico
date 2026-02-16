@@ -4,7 +4,7 @@ FROM python:3.9-slim
 WORKDIR /cat-stats-query-service
 
 # Abhängigkeiten kopieren und installieren
-RUN pip install --no-cache-dir flask pika
+RUN pip install --no-cache-dir flask pika flask-cors
 
 # Den Code kopieren
 COPY . .

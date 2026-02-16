@@ -1,7 +1,10 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, send_from_directory, request
+from flask_cors import CORS
 import threading, pika, json
+import os
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='/cat-stats-query-service')
+CORS(app)
 
 # Unser Readmodel (In-Memory für die Aufgabe) [cite: 79]
 stats = {"feed_count": 0, "last_fed": None}
@@ -28,7 +31,16 @@ def consume_events():
 # Starte den Event-Consumer in einem eigenen Thread
 threading.Thread(target=consume_events, daemon=True).start()
 
-@app.route('/stats', methods=['GET'])
+@app.route('/')
+def index():
+    return send_from_directory('/cat-stats-query-service', 'index.html')
+
+@app.route('/stats', methods=['GET', 'OPTIONS'])
 def get_stats():
+    if request.method == 'OPTIONS':
+        return '', 204
     # Schnelle Abfrage des optimierten Readmodels [cite: 57, 79]
     return jsonify(stats)
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=False)
