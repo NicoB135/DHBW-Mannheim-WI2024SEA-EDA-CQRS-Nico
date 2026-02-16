@@ -7,13 +7,17 @@ CORS(app)
 
 def send_event(event_type, data):
     # Verbindung zu RabbitMQ aufbauen (Host aus docker-compose)
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
-    channel = connection.channel()
-    channel.exchange_declare(exchange='cat_events', exchange_type='fanout')
-    
-    message = json.dumps({'event': event_type, 'data': data})
-    channel.basic_publish(exchange='cat_events', routing_key='', body=message)
-    connection.close()
+    try:
+        connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
+        channel = connection.channel()
+        channel.exchange_declare(exchange='cat_events', exchange_type='fanout')
+        
+        message = json.dumps({'event': event_type, 'data': data})
+        channel.basic_publish(exchange='cat_events', routing_key='', body=message)
+        print(f"✅ Event gesendet: {message}")
+        connection.close()
+    except Exception as e:
+        print(f"❌ Fehler beim Senden des Events: {e}")
 
 @app.route('/')
 def index():

@@ -37,6 +37,18 @@
             font-size: 2.5em;
         }
 
+        .cat-image {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .cat-image img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
         .section {
             margin-bottom: 30px;
         }
@@ -118,6 +130,10 @@
     <div class="container">
         <h1>📊 Statistiken</h1>
 
+        <div class="cat-image">
+            <img id="catImage" src="hangry_cat.jpeg" alt="Katze">
+        </div>
+
         <div class="section">
             <h2>📈 Fütterungsstatistiken</h2>
             <div class="stats">
@@ -145,11 +161,29 @@
                 const response = await fetch('http://localhost:5002/stats');
                 const data = await response.json();
                 
-                document.getElementById('feedCount').textContent = data.feed_count || 0;
+                const feedCount = data.feed_count || 0;
+                document.getElementById('feedCount').textContent = feedCount;
                 document.getElementById('lastFed').textContent = data.last_fed || '-';
+                
+                // Ändere das Bild basierend auf feed_count
+                updateCatImage(feedCount);
             } catch (error) {
                 document.getElementById('feedCount').textContent = '✗';
                 document.getElementById('lastFed').textContent = '✗';
+            }
+        }
+
+        function updateCatImage(feedCount) {
+            const catImage = document.getElementById('catImage');
+            
+            if (feedCount === 0) {
+                // Hungrige Katze
+                catImage.src = 'hangry_cat.jpeg';
+                catImage.alt = 'Hungrige Katze';
+            } else {
+                // Essende Katze
+                catImage.src = 'eating_cat.jpeg';
+                catImage.alt = 'Essende Katze';
             }
         }
 

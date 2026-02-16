@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🍽️ Cat Feeding</title>
+    <title>Feed a Cat :3 </title>
     <style>
         * {
             margin: 0;
@@ -125,11 +125,11 @@
 </head>
 <body>
     <div class="container">
-        <h1>🍽️ Katze füttern</h1>
+        <h1>Katze füttern</h1>
 
         <div class="section">
             <h2>Katzenname eingeben</h2>
-            <input type="text" id="catName" placeholder="Name der Katze..." value="Fluffy">
+            <input type="text" id="catName" placeholder="Name der Katze..." value="Tommy">
             <button onclick="feedCat()">🍽️ Füttern</button>
             <div id="message" class="message"></div>
         </div>
@@ -152,7 +152,7 @@
                 });
 
                 if (response.ok) {
-                    messageDiv.textContent = `✅ ${catName} wurde gefüttert!`;
+                    messageDiv.textContent = `${catName} wurde gefüttert!`;
                     messageDiv.className = 'message success';
                     document.getElementById('catName').value = '';
                     setTimeout(() => {
@@ -162,7 +162,7 @@
                     throw new Error('Fehler beim Füttern');
                 }
             } catch (error) {
-                messageDiv.textContent = `❌ Fehler: ${error.message}`;
+                messageDiv.textContent = `Fehler: ${error.message}`;
                 messageDiv.className = 'message error';
             }
         }
