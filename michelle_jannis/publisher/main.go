@@ -18,7 +18,7 @@ const htmlTemplate = `
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Message Publisher</title>
+    <title>Message Publisher ≽^•⩊•^≼</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -91,10 +91,10 @@ const htmlTemplate = `
 </head>
 <body>
     <div class="container">
-        <h1>Message Publisher</h1>
+        <h1>Message Publisher ≽^•⩊•^≼</h1>
         <form method="POST" action="/publish">
             <label for="message">Nachricht:</label>
-            <textarea id="message" name="message" required placeholder="Geben Sie Ihre Nachricht hier ein..."></textarea>
+            <textarea id="message" name="message" required placeholder="Hier Nachricht eingeben"></textarea>
             <input type="submit" value="Senden">
         </form>
         {{if .Message}}
@@ -157,13 +157,13 @@ func handlePublish(w http.ResponseWriter, r *http.Request) {
 	msg := message.NewMessage(watermill.NewUUID(), []byte(messageText))
 	err := publisher.Publish(topic, msg)
 	if err != nil {
-		println("Nachricht konnte nicht versendet werden")
+		println("Nachricht konnte nicht versendet werden ≽(•ᆺ •マ≼")
 		return
 	}
 
 	tmpl, _ := template.New("success").Parse(htmlTemplate)
 	data := TemplateData{
-		Message:     "Nachricht versendet",
+		Message:     "Nachricht versendet ₍^. .^₎Ⳋ",
 		MessageType: "success",
 	}
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
