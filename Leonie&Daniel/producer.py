@@ -42,5 +42,6 @@ def sendEvent():
 
 if __name__ == "__main__":
     display_menu()
-    sendEvent()
-    connection.close()
+
+sendEvent()
+connection.close()
