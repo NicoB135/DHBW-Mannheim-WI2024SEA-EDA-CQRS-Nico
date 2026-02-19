@@ -20,72 +20,118 @@ const htmlTemplate = `
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Message Publisher ≽^•⩊•^≼</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Courier New', monospace;
+            background-color: #2a2a2a;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
             max-width: 600px;
             margin: 50px auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
-            background-color: white;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border: 8px solid #4a4a4a;
+            border-radius: 12px;
             padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
+        
         h1 {
-            color: #333;
+            color: #ffd700;
             text-align: center;
+            margin-bottom: 30px;
+            font-size: 32px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
+        
         form {
             display: flex;
             flex-direction: column;
         }
+        
         label {
             margin-bottom: 8px;
             font-weight: bold;
-            color: #555;
+            color: #ffd700;
+            font-size: 16px;
         }
+        
         input[type="text"], textarea {
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-family: Arial, sans-serif;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 2px solid #4a4a4a;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
             font-size: 14px;
+            background-color: #1a1a1a;
+            color: #ffd700;
+            transition: all 0.3s ease;
         }
+        
+        input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: #ffd700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+        
         textarea {
             resize: vertical;
-            min-height: 100px;
+            min-height: 120px;
         }
+        
+        input[type="text"]::placeholder, textarea::placeholder {
+            color: #888;
+        }
+        
         input[type="submit"] {
-            padding: 12px;
-            background-color: #4CAF50;
-            color: white;
+            padding: 15px;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #2a2a2a;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
             font-weight: bold;
+            font-family: 'Courier New', monospace;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
         }
+        
         input[type="submit"]:hover {
-            background-color: #45a049;
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
         }
+        
+        input[type="submit"]:active {
+            transform: scale(0.98);
+        }
+        
         .message {
             margin-top: 20px;
             padding: 15px;
-            border-radius: 4px;
+            border-radius: 8px;
             text-align: center;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
+        
         .success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #2a2a2a;
+            border: 1px solid rgba(0, 0, 0, 0.1);
         }
+        
         .error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8787 100%);
+            color: #1a1a1a;
+            border: 1px solid rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
