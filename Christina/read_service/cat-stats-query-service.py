@@ -8,6 +8,8 @@ app = Flask(__name__, static_folder='/cat-stats-query-service', static_url_path=
 CORS(app)
 
 stats = {"feed_count": 0, "last_fed": None}
+QUEUE = "HELLO"
+EXCHANGE = "cats_exchange"
 
 def consume_events():
     while True:
@@ -15,11 +17,11 @@ def consume_events():
             print("Verbinde zu RabbitMQ...")
             connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
             channel = connection.channel()
-            channel.exchange_declare(exchange='cat_events', exchange_type='fanout')
-            
-            result = channel.queue_declare(queue='', exclusive=True)
-            channel.queue_bind(exchange='cat_events', queue=result.method.queue)
-            print(f"Event-Listener bereit auf Queue: {result.method.queue}")
+            # Deklariere Exchange und Queue mit durable=True
+            channel.exchange_declare(exchange=EXCHANGE, exchange_type='direct', durable=True)
+            channel.queue_declare(queue=QUEUE, durable=True)
+            channel.queue_bind(exchange=EXCHANGE, queue=QUEUE, routing_key=QUEUE)
+            print(f"Event-Listener bereit auf Queue: {QUEUE}")
 
             def callback(ch, method, properties, body):
                 try:
@@ -32,12 +34,12 @@ def consume_events():
                 except Exception as e:
                     print(f"Fehler beim Verarbeiten des Events: {e}")
 
-            channel.basic_consume(queue=result.method.queue, on_message_callback=callback, auto_ack=True)
+            channel.basic_consume(queue=QUEUE, on_message_callback=callback, auto_ack=True)
             print("🎧 Höre auf Events...")
             channel.start_consuming()
         except Exception as e:
             print(f"Fehler in consume_events: {e}")
-            time.sleep(5)  # 5 sekunden warten dann retry
+            time.sleep(5)
 
 # Sevent consumer starten in eigenen thread
 consumer_thread = threading.Thread(target=consume_events, daemon=True)

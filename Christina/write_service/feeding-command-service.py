@@ -5,18 +5,30 @@ import pika, json
 app = Flask(__name__, static_folder='/feeding-command-service')
 CORS(app)
 
+QUEUE = "HELLO"
+EXCHANGE = "cats_exchange"
+
 def send_event(event_type, data):
     try:
         connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
         channel = connection.channel()
-        channel.exchange_declare(exchange='cat_events', exchange_type='fanout')
+        # Deklariere Queue und Exchange
+        channel.exchange_declare(exchange=EXCHANGE, exchange_type='direct', durable=True)
+        channel.queue_declare(queue=QUEUE, durable=True)
+        channel.queue_bind(exchange=EXCHANGE, queue=QUEUE, routing_key=QUEUE)
         
         message = json.dumps({'event': event_type, 'data': data})
-        channel.basic_publish(exchange='cat_events', routing_key='', body=message)
+        # Persistent Message
+        channel.basic_publish(
+            exchange=EXCHANGE, 
+            routing_key=QUEUE, 
+            body=message,
+            properties=pika.BasicProperties(delivery_mode=2)
+        )
         print(f"Event gesendet: {message}")
         connection.close()
     except Exception as e:
-        print(f"Error beim Senden des Events: {e}")
+        print(f"Fehler beim Senden des Events: {e}")
 
 @app.route('/')
 def index():
