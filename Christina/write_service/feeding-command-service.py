@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-import pika, json
+import pika, json, os
 
 app = Flask(__name__, static_folder='/feeding-command-service')
 CORS(app)
@@ -10,7 +10,10 @@ EXCHANGE = "cats_exchange"
 
 def send_event(event_type, data):
     try:
-        connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
+        print("Verbinde zu RabbitMQ...")
+        host = os.environ.get('RABBITMQ_HOST', 'localhost')
+        connection = pika.BlockingConnection(pika.ConnectionParameters(host=host))
+
         channel = connection.channel()
         # Deklariere Queue und Exchange
         channel.exchange_declare(exchange=EXCHANGE, exchange_type='direct', durable=True)
@@ -34,19 +37,20 @@ def send_event(event_type, data):
 def index():
     return send_from_directory('/feeding-command-service', 'index.html')
 
-@app.route('/feed', methods=['GET', 'POST', 'OPTIONS'])
+@app.route('/feed', methods=[ 'POST', 'OPTIONS'])
 def feed_cat():
     if request.method == 'OPTIONS':
         return '', 204
     
     try:
         data = request.get_json(force=True) if request.data else {}
-    except:
+    except Exception as e:
+        print(f"Warnung: Ungültige Request Daten empfangen. Fehler: {e}")
         data = {}
     
     cat_name = data.get('name', 'Unbekannte Katze :0')
     
-    send_event('cat.fed', {'name': cat_name, 'amount': '50g'})
+    send_event('cat.fed', {'name': cat_name})
     
     return jsonify({"status": "Command gesendet: Katze wird gefüttert! :3"}), 202
 

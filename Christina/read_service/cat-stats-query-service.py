@@ -1,8 +1,7 @@
 from flask import Flask, jsonify, send_from_directory, request
 from flask_cors import CORS
-import threading, pika, json
-import os
-import time
+import threading, pika, json, os, time
+
 
 app = Flask(__name__, static_folder='/cat-stats-query-service', static_url_path='')
 CORS(app)
@@ -15,7 +14,9 @@ def consume_events():
     while True:
         try:
             print("Verbinde zu RabbitMQ...")
-            connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
+            host = os.environ.get('RABBITMQ_HOST', 'localhost')
+            connection = pika.BlockingConnection(pika.ConnectionParameters(host=host))
+
             channel = connection.channel()
             # Deklariere Exchange und Queue mit durable=True
             channel.exchange_declare(exchange=EXCHANGE, exchange_type='direct', durable=True)
@@ -35,7 +36,7 @@ def consume_events():
                     print(f"Fehler beim Verarbeiten des Events: {e}")
 
             channel.basic_consume(queue=QUEUE, on_message_callback=callback, auto_ack=True)
-            print("🎧 Höre auf Events...")
+            print("Höre auf Events...")
             channel.start_consuming()
         except Exception as e:
             print(f"Fehler in consume_events: {e}")
