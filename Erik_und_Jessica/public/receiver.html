@@ -1,0 +1,156 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Lager - Receiver</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 600px;
+        margin: 50px auto;
+        padding: 20px;
+        background: #f5f5f5;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #2c3e50;
+        margin-bottom: 20px;
+      }
+      .status {
+        padding: 10px;
+        margin: 15px 0;
+        border-radius: 5px;
+        background: #e8f4f8;
+        color: #2c3e50;
+      }
+      .stock-display {
+        text-align: center;
+        padding: 40px;
+        background: linear-gradient(135deg, #10b981 10%, #059669 100%);
+        border-radius: 10px;
+        margin: 20px 0;
+      }
+      .stock-display.low {
+        background: linear-gradient(135deg, #f59e0b 10%, #d97706 100%);
+      }
+      .stock-value {
+        font-size: 72px;
+        font-weight: bold;
+        color: white;
+        margin: 10px 0;
+      }
+      .stock-label {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 18px;
+      }
+      .connection {
+        padding: 10px;
+        border-radius: 5px;
+        text-align: center;
+        margin: 15px 0;
+      }
+      .connection.connected {
+        background: #10b981;
+        color: white;
+      }
+      .connection.disconnected {
+        background: #e74c3c;
+        color: white;
+      }
+      .log {
+        margin-top: 20px;
+        padding: 15px;
+        background: #ecf0f1;
+        border-radius: 5px;
+        max-height: 150px;
+        overflow-y: auto;
+      }
+      .log-entry {
+        padding: 5px 0;
+        border-bottom: 1px solid #bdc3c7;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>📦 Lager (Receiver)</h1>
+      <div class="status">
+        Server: <strong>localhost:3001</strong><br />
+        RabbitMQ Queue: <strong>lager_queue</strong>
+      </div>
+
+      <div class="connection disconnected" id="conn">
+        ⏳ Verbinde mit RabbitMQ...
+      </div>
+
+      <div class="stock-display" id="stockBox">
+        <div class="stock-label">Aktueller Lagerbestand</div>
+        <div class="stock-value" id="stock">100</div>
+        <div class="stock-label">Stück</div>
+      </div>
+
+      <div class="log">
+        <strong>Verarbeitungs-Log:</strong>
+        <div id="logEntries"></div>
+      </div>
+    </div>
+
+    <script>
+      const stockEl = document.getElementById("stock");
+      const stockBox = document.getElementById("stockBox");
+      const conn = document.getElementById("conn");
+      let currentStock = 100;
+
+      const source = new EventSource("/events");
+
+      source.onopen = () => {
+        conn.className = "connection connected";
+        conn.textContent = "✓ Verbunden mit RabbitMQ";
+        addLog("SSE-Verbindung hergestellt");
+      };
+
+      source.onmessage = (e) => {
+        const data = JSON.parse(e.data);
+        const oldStock = currentStock;
+        currentStock = data.stock;
+        stockEl.textContent = currentStock;
+
+        addLog(`Nachricht empfangen: ${oldStock} → ${currentStock}`);
+
+        if (currentStock <= 10) {
+          stockBox.classList.add("low");
+        } else {
+          stockBox.classList.remove("low");
+        }
+
+        stockEl.style.transform = "scale(1.1)";
+        setTimeout(() => {
+          stockEl.style.transform = "scale(1)";
+        }, 200);
+      };
+
+      source.onerror = () => {
+        conn.className = "connection disconnected";
+        conn.textContent = "✗ Verbindung unterbrochen";
+        addLog("SSE-Verbindung verloren");
+      };
+
+      function addLog(message) {
+        const logEntries = document.getElementById("logEntries");
+        const entry = document.createElement("div");
+        entry.className = "log-entry";
+        const time = new Date().toLocaleTimeString();
+        entry.textContent = `[${time}] ${message}`;
+        logEntries.insertBefore(entry, logEntries.firstChild);
+      }
+
+      addLog("Receiver bereit");
+    </script>
+  </body>
+</html>

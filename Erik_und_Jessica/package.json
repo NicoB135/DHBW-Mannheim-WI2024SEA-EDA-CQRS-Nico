@@ -1,0 +1,12 @@
+{
+  "name": "rabbitmq-cqrs",
+  "version": "1.0.0",
+  "scripts": {
+    "sender": "node sender.js",
+    "receiver": "node receiver.js"
+  },
+  "dependencies": {
+    "amqplib": "^0.10.9",
+    "express": "^4.21.2"
+  }
+}

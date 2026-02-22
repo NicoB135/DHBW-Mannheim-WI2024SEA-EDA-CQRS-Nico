@@ -1,0 +1,101 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Kasse - Sender</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 600px;
+        margin: 50px auto;
+        padding: 20px;
+        background: #f5f5f5;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #2c3e50;
+        margin-bottom: 20px;
+      }
+      .status {
+        padding: 10px;
+        margin: 15px 0;
+        border-radius: 5px;
+        background: #e8f4f8;
+        color: #2c3e50;
+      }
+      button {
+        background: #3498db;
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        font-size: 18px;
+        border-radius: 5px;
+        cursor: pointer;
+        width: 100%;
+      }
+      button:hover {
+        background: #2980b9;
+      }
+      .log {
+        margin-top: 20px;
+        padding: 15px;
+        background: #ecf0f1;
+        border-radius: 5px;
+        max-height: 200px;
+        overflow-y: auto;
+      }
+      .log-entry {
+        padding: 5px 0;
+        border-bottom: 1px solid #bdc3c7;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🛒 Kasse (Sender)</h1>
+      <div class="status">
+        Server: <strong>localhost:3000</strong><br />
+        RabbitMQ Queue: <strong>lager_queue</strong>
+      </div>
+
+      <button onclick="kaufen()">Artikel kaufen</button>
+
+      <div class="log" id="log">
+        <strong>Log:</strong>
+        <div id="logEntries"></div>
+      </div>
+    </div>
+
+    <script>
+      let counter = 0;
+
+      function kaufen() {
+        fetch("/send")
+          .then((res) => res.json())
+          .then((data) => {
+            counter++;
+            addLog(`Kauf #${counter} gesendet an RabbitMQ`);
+          })
+          .catch((err) => {
+            addLog(`Fehler: ${err.message}`);
+          });
+      }
+
+      function addLog(message) {
+        const logEntries = document.getElementById("logEntries");
+        const entry = document.createElement("div");
+        entry.className = "log-entry";
+        const time = new Date().toLocaleTimeString();
+        entry.textContent = `[${time}] ${message}`;
+        logEntries.insertBefore(entry, logEntries.firstChild);
+      }
+
+      addLog("Sender bereit");
+    </script>
+  </body>
+</html>

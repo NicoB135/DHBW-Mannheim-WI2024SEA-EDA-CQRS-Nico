@@ -1,0 +1,23 @@
+services:
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    ports:
+      - "5672:5672"  # RabbitMQ Port
+      - "15672:15672"  # Management UI Port
+
+  consumer:
+    build: ./consumer
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "8002:8000"
+    depends_on:
+      - rabbitmq
+
+  producer:
+    build: ./producer
+    ports:
+      - "8001:8000"
+    depends_on:
+      - rabbitmq
+

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Smart Home - EDA & CQRS Demo</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; padding: 50px; transition: background 0.5s; background: #f4f4f4; }
+        .light { width: 120px; height: 120px; border-radius: 50%; border: 5px solid #333; margin: 30px auto; background: #555; transition: 0.3s; }
+        .light.on { background: #ffea00; box-shadow: 0 0 60px #ffea00; border-color: #fbc02d; }
+        button { padding: 15px 40px; font-size: 20px; cursor: pointer; background: #28a745; color: white; border: none; border-radius: 8px; box-shadow: 0 4px #1e7e34; }
+        button:active { box-shadow: 0 2px #1e7e34; transform: translateY(2px); }
+        .card { border: 1px solid #ddd; padding: 25px; border-radius: 15px; display: inline-block; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.1); min-width: 300px; }
+        h1 { color: #333; }
+    </style>
+</head>
+<body>
+    <h1>Smart Home: EDA & CQRS Demo</h1>
+    
+    <div class="card">
+        <h3>Command Side (Producer)</h3>
+        <p><i>Port 8001</i></p>
+        <button onclick="pressButton()">Licht-Schalter drücken</button>
+    </div>
+
+    <div style="margin: 40px;"></div>
+
+    <div class="card">
+        <h3>Query Side (Consumer)</h3>
+        <p><i>Port 8002</i></p>
+        <div id="bulb" class="light"></div>
+        <p>Status: <strong id="statusText">AUS</strong></p>
+        <p>Letztes Event: <span id="timeText">-</span></p>
+    </div>
+
+    <script>
+        async function pressButton() {
+            try {
+                await fetch('http://localhost:8001/press_button', { method: 'POST' });
+            } catch (e) { alert("Producer nicht erreichbar!"); }
+        }
+
+        async function updateStatus() {
+            try {
+                const response = await fetch('http://localhost:8002/status');
+                const data = await response.json();
+                
+                const bulb = document.getElementById('bulb');
+                const statusText = document.getElementById('statusText');
+                const timeText = document.getElementById('timeText');
+
+                if (data.is_light_on) {
+                    bulb.classList.add('on');
+                    statusText.innerText = "AN";
+                    document.body.style.background = "#fffde7";
+                } else {
+                    bulb.classList.remove('on');
+                    statusText.innerText = "AUS";
+                    document.body.style.background = "#f4f4f4";
+                }
+                timeText.innerText = data.last_update;
+            } catch (e) { console.log("Warte auf Consumer..."); }
+        }
+        setInterval(updateStatus, 1000);
+    </script>
+</body>
+</html>
